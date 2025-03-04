@@ -43,10 +43,11 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Name'),
+        title: Text('Username'),
       ),
       body: Obx(
             () => Chat(
+              theme: DefaultChatTheme(secondaryColor: Colors.grey),
           messages: _chatController.messages.reversed.toList(), // Reverse messages
           onSendPressed: (types.PartialText message) {
             final textMessage = types.TextMessage(

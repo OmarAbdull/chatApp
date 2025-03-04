@@ -4,7 +4,7 @@ import 'package:flutter_contacts/flutter_contacts.dart'; // تأكد من است
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
 
-import '../chatScreen/ChatScreen.dart';
+import '../chat/ChatScreen.dart';
 
 class NewMessageScreen extends StatelessWidget {
   const NewMessageScreen({super.key});

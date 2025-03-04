@@ -5,8 +5,8 @@ import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../modle/data/ChatMessage.dart';
-import '../newMessageScreen/NewMessageScreen.dart';
+import '../../modle/data/ChatMessageData.dart';
+import '../new_message/NewMessageScreen.dart';
 import 'ChatListController.dart';
 
 class ChatListScreen extends StatelessWidget {
@@ -28,29 +28,11 @@ class ChatListScreen extends StatelessWidget {
           itemCount: _chatController.chatList.length,
           separatorBuilder: (context, index) => Divider(height: 1),
           itemBuilder: (context, index) {
-            ChatMessage chat = _chatController.chatList[index];
+            ChatMessageData chat = _chatController.chatList[index];
             return ListTile(
-              leading: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundImage: NetworkImage(chat.avatarUrl),
-                  ),
-                  if (chat.isOnline)
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                      ),
-                    )
-                ],
+              leading: CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage(chat.avatarUrl),
               ),
               title: Row(
                 children: [
@@ -65,7 +47,11 @@ class ChatListScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    DateFormat('HH:mm').format(chat.timestamp),
+                    DateFormat('HH:mm').format(
+                      chat.messages.isNotEmpty
+                          ? chat.messages.last.timestamp
+                          : DateTime.now(),
+                    ),
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -74,7 +60,11 @@ class ChatListScreen extends StatelessWidget {
                 ],
               ),
               subtitle: Text(
-                chat.isSentByMe ? 'You: ${chat.lastMessage}' : chat.lastMessage,
+                chat.messages.isNotEmpty
+                    ? (/* chat.isSentByMe */ false
+                        ? 'You: ${chat.messages.last.text}'
+                        : chat.messages.last.text)
+                    : '', // Handle case when there are no messages
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -86,19 +76,19 @@ class ChatListScreen extends StatelessWidget {
               ),
               trailing: chat.unreadCount > 0
                   ? Container(
-                padding: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '${chat.unreadCount}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
-                ),
-              )
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${chat.unreadCount}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    )
                   : null,
               onTap: () {
                 // Navigate to chat detail screen

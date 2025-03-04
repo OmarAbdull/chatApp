@@ -1,7 +1,4 @@
-import 'package:chat_app/screens/bottomNavBar/BottomNavBar.dart';
-import 'package:chat_app/screens/chatScreen/ChatScreen.dart';
-import 'package:chat_app/screens/chat_list/ChatListScreen.dart';
-import 'package:chat_app/screens/login/LoginScreen.dart';
+import 'package:chat_app/screens/bottom_nav_bar/BottomNavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
