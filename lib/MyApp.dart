@@ -1,4 +1,5 @@
 import 'package:chat_app/screens/bottom_nav_bar/BottomNavBar.dart';
+import 'package:chat_app/screens/chat/ChatScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
           builder: (context) {
             return Directionality(
               textDirection: controller.textDirection,
-              child: BottomNavBar(),
+              child: ChatScreen(conversationId: "conversationId"),
             );
           },
         ),

@@ -25,8 +25,20 @@ class AppDatabase {
   Future<Database> _initDatabase() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, 'chat.db'); // Database file path
-    return openDatabase(path, version: 1, onCreate: _onCreate); // Open/create database
+    return openDatabase(
+      path,
+      version: 2, // Increase version for migration
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade, // Add migration logic
+    );
   }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute("ALTER TABLE ${ChatMessages.tableName} ADD COLUMN ${ChatMessages.columnImage} TEXT");
+    }
+  }
+
 
   // Create the necessary tables when the database is created
   Future<void> _onCreate(Database db, int version) async {
@@ -36,65 +48,55 @@ class AppDatabase {
 
   // Insert a list of chat messages into the database
   Future<void> insertChatMessages(List<ChatMessageData> chatList) async {
-    final db = await database; // Retrieve the database instance
+    final db = await database;
 
-    Batch batch = db.batch(); // Create a batch operation for bulk inserts
+    Batch batch = db.batch();
 
-    // Loop through each chat in the chat list
     for (var chat in chatList) {
-      // Loop through each message in the chat
       for (var message in chat.messages) {
-        // Prepare the data to insert into the ChatMessages table
         batch.insert(
-          ChatMessages.tableName, // Table name
+          ChatMessages.tableName,
           {
-            ChatMessages.columnSender: chat.senderName, // Sender's name
-            ChatMessages.columnMessage: message.text, // Message text
-            ChatMessages.columnTimestamp: message.timestamp.millisecondsSinceEpoch, // Message timestamp
-            ChatMessages.columnIsRead: message.isRead ? 1 : 0 // Read status (1 for true, 0 for false)
+            ChatMessages.columnSender: chat.senderName,
+            ChatMessages.columnMessage: message.text,
+            ChatMessages.columnTimestamp: message.timestamp.millisecondsSinceEpoch,
+            ChatMessages.columnIsRead: message.isRead ? 1 : 0,
+            ChatMessages.columnImage: chat.avatarUrl, // Save avatar URL
           },
-          conflictAlgorithm: ConflictAlgorithm.replace, // Replace if conflict occurs
+          conflictAlgorithm: ConflictAlgorithm.replace,
         );
       }
     }
 
-    // Execute all batch insert operations
     await batch.commit();
   }
 
   // Fetch all chats from the database and return them grouped by sender
   Future<List<ChatMessageData>> getAllChats() async {
-    final db = await database; // Retrieve the database instance
-    final List<Map<String, dynamic>> messages = await db.query(ChatMessages.tableName); // Query all messages from the ChatMessages table
+    final db = await database;
+    final List<Map<String, dynamic>> messages = await db.query(ChatMessages.tableName);
 
-    // Group messages by sender's name using a map
-    Map<String, List<ChatMessageData>> groupedMessages = {};
+    Map<String, ChatMessageData> chatDataMap = {};
 
     for (var msg in messages) {
-      // Group the messages by sender name
-      groupedMessages.putIfAbsent(msg[ChatMessages.columnSender], () => []).add(ChatMessageData(
-        id: msg[ChatMessages.columnId], // Message ID
-        senderName: msg[ChatMessages.columnSender], // Sender's name
-        messages: [
-          // Create a Message object for each chat message
-          Message(
-            text: msg[ChatMessages.columnMessage], // Message text
-            timestamp: DateTime.fromMillisecondsSinceEpoch(msg[ChatMessages.columnTimestamp]), // Convert timestamp to DateTime
-            isRead: msg[ChatMessages.columnIsRead] == 1, // Determine if message is read
-          )
-        ],
-        avatarUrl: 'https://picsum.photos/300/300', // Placeholder avatar URL
+      String sender = msg[ChatMessages.columnSender];
+
+      if (!chatDataMap.containsKey(sender)) {
+        chatDataMap[sender] = ChatMessageData(
+          id: msg[ChatMessages.columnId],
+          senderName: sender,
+          messages: [],
+          avatarUrl: msg[ChatMessages.columnImage] ?? '', // Retrieve avatar URL
+        );
+      }
+
+      chatDataMap[sender]!.messages.add(Message(
+        text: msg[ChatMessages.columnMessage],
+        timestamp: DateTime.fromMillisecondsSinceEpoch(msg[ChatMessages.columnTimestamp]),
+        isRead: msg[ChatMessages.columnIsRead] == 1,
       ));
     }
 
-    // Map the grouped messages back into a list of ChatMessageData objects
-    return groupedMessages.values
-        .map((msgList) => ChatMessageData(
-      id: msgList.first.id, // Use the first message's ID
-      senderName: msgList.first.senderName, // Use the first message's sender name
-      messages: msgList.expand((chat) => chat.messages).toList(), // Combine all messages in the group
-      avatarUrl: msgList.first.avatarUrl, // Use the first message's avatar URL
-    ))
-        .toList(); // Return the list of grouped ChatMessageData objects
+    return chatDataMap.values.toList();
   }
 }

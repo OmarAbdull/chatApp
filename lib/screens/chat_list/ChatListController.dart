@@ -38,9 +38,9 @@ class ChatListController extends GetxController {
           senderName: 'John Doe',
           messages: [
             Message(text: 'Hey, how are you?', timestamp: DateTime.now().subtract(Duration(minutes: 5)), isRead: false),
-            Message(text: 'What’s up?', timestamp: DateTime.now().subtract(Duration(minutes: 3)), isRead: false)
+            Message(text: 'What’s up?', timestamp: DateTime.now().subtract(Duration(minutes: 3)), isRead: false),
           ],
-          avatarUrl: 'https://picsum.photos/300/300',
+          avatarUrl: 'https://picsum.photos/200/200', // Avatar for John Doe
         ),
         ChatMessageData(
           id: 2,
@@ -48,13 +48,12 @@ class ChatListController extends GetxController {
           messages: [
             Message(text: 'See you tomorrow!', timestamp: DateTime.now().subtract(Duration(hours: 2)), isRead: true),
           ],
-          avatarUrl: 'https://picsum.photos/300/300',
+          avatarUrl: 'https://picsum.photos/201/201', // Avatar for Jane Smith
         ),
       ];
 
       await AppDatabase().insertChatMessages(chats);
 
-      // Fetch the saved data to verify it's in the database
       List<ChatMessageData> savedChats = await AppDatabase().getAllChats();
       print("Saved chats in the database: $savedChats");
 
@@ -65,6 +64,6 @@ class ChatListController extends GetxController {
   }
 
   void disableScreenshot() async {
-    bool result = await noScreenshot.screenshotOff();
+    noScreenshot.screenshotOff();
   }
 }

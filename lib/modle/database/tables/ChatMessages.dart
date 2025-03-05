@@ -1,7 +1,3 @@
-// lib/modle/database/chat_messages_table.dart
-
-import 'package:sqflite/sqflite.dart';
-
 class ChatMessages {
   static const String tableName = 'ChatMessages';
 
@@ -10,6 +6,7 @@ class ChatMessages {
   static const String columnMessage = 'message';
   static const String columnTimestamp = 'timestamp';
   static const String columnIsRead = 'isRead';
+  static const String columnImage = 'image'; // New column for image
 
   static const String createTableQuery = '''
     CREATE TABLE $tableName (
@@ -17,7 +14,8 @@ class ChatMessages {
       $columnSender TEXT,
       $columnMessage TEXT,
       $columnTimestamp INTEGER,
-      $columnIsRead INTEGER DEFAULT 0
+      $columnIsRead INTEGER DEFAULT 0,
+      $columnImage TEXT  -- Store image path or URL
     )
   ''';
 }
