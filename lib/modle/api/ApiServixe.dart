@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/ChatMessageData.dart';
 
@@ -14,35 +11,62 @@ class ApiService {
   static final String? _baseUrl = dotenv.env['API_BASE_URL'];
 
   /// Sends a POST request to the given [endpoint] with the provided [body].
+// In ApiService class
   Future<dynamic> post(String endpoint, dynamic body) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/$endpoint'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
-
-    /// Returns decoded JSON response if the request is successful (status code 200).
+    print("Api Response ${response.body}");
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-    }
-
-    /// - Throws an exception with a message if the status code is 400.
-    else if (response.statusCode == 400) {
-      throw Exception(jsonDecode(response.body)['message']);
-    }
-    /// - Throws a general exception if the request fails.
-    else {
-      throw Exception('Failed to load data');
-    }
-  }
-  Future<List<ChatMessageData>> fetchChatMessages() async {
-    final response = await http.get(Uri.parse('$_baseUrl/chats'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => ChatMessageData.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load chats');
+      final errorResponse = jsonDecode(response.body);
+      throw Exception(errorResponse['message'] ?? 'Failed to load data');
     }
   }
+
+  Future<dynamic> authenticatedPost(String endpoint, dynamic body) async {
+    final token = await _getToken();
+    final uri = Uri.parse('$_baseUrl/$endpoint');
+    print("Url$_baseUrl/$endpoint");
+    print("body$body");
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(body),
+      );
+
+      print("API Response Status: ${response.statusCode}");
+      print("API Response Body: ${response.body}");
+
+      final responseBody = response.body.isNotEmpty
+          ? jsonDecode(response.body)
+          : <String, dynamic>{};
+
+      if (response.statusCode == 200) {
+        return responseBody;
+      } else {
+        throw Exception(
+            responseBody['message'] ?? 'API request failed with status ${response.statusCode}'
+        );
+      }
+    } on FormatException catch (e) {
+      throw Exception('Invalid JSON response: ${e.message}');
+    } on http.ClientException catch (e) {
+      throw Exception('Network error: ${e.message}');
+    }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
 }

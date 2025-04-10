@@ -1,21 +1,24 @@
-class ChatMessages {
-  static const String tableName = 'ChatMessages';
+import 'Chat.dart';
 
-  static const String columnId = 'id';
-  static const String columnSender = 'sender';
-  static const String columnMessage = 'message';
-  static const String columnTimestamp = 'timestamp';
-  static const String columnIsRead = 'isRead';
-  static const String columnImage = 'image'; // New column for image
-
-  static const String createTableQuery = '''
+class ChatMessage {
+  static const tableName = 'messages';
+  static const columnId = 'id';
+  static const columnChatId = 'chat_id';
+  static const columnContent = 'content';
+  static const columnTimestamp = 'timestamp';
+  static const columnIsRead = 'is_read';
+  static const columnSenderIsMe = 'sender_is_me';
+  static const columnType = 'type';
+  static String get createTableQuery => '''
     CREATE TABLE $tableName (
-      $columnId INTEGER PRIMARY KEY,
-      $columnSender TEXT,
-      $columnMessage TEXT,
-      $columnTimestamp INTEGER,
+      $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+      $columnChatId INTEGER NOT NULL,
+      $columnContent TEXT NOT NULL,
+      $columnTimestamp INTEGER NOT NULL,
       $columnIsRead INTEGER DEFAULT 0,
-      $columnImage TEXT  -- Store image path or URL
+      $columnSenderIsMe INTEGER DEFAULT 0,
+      $columnType INTEGER NOT NULL,
+      FOREIGN KEY ($columnChatId) REFERENCES ${Chat.tableName}(${Chat.columnId})
     )
   ''';
 }

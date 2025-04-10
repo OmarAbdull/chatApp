@@ -10,13 +10,14 @@ mixin AppLocale {
   static const String signup = 'Signup';
   static const String systemTheme = 'System Theme';
   static const String phoneNumber = 'Phone Number';
+  static const String signupFailed = 'signupFailed';
   static const String userName = 'Username';
   static const String password = 'Password';
   static const String confirmPassword = 'Confirm Password';
   static const String email = 'email';
   static const String enterPassword = 'Please enter your password';
   static const String enterUsername = 'Please enter your the username';
-  static const String enterPhoneNumber = 'Please enter your phone number';
+  static const String enterPhoneNumber = 'Please enter the phone number';
   static const String passwordLength = 'Password must be at least 6 characters';
   static const String loginFailed = 'Login Failed';
   static const String invalidCredentials = 'Invalid credentials';
@@ -41,6 +42,8 @@ mixin AppLocale {
   static const String safetyTipBewarePhishingDesc = 'safetyTipBewarePhishingDesc';
   static const String safetyTipRegularUpdatesTitle = 'safetyTipRegularUpdatesTitle';
   static const String safetyTipRegularUpdatesDesc = 'safetyTipRegularUpdatesDesc';
+  static const String startChat = 'startChat';
+  static const String newContact  = 'newContact';
 
   static const String pickContacts = 'PickFromContacts';
 
@@ -55,10 +58,11 @@ mixin AppLocale {
     enterPassword: 'Please enter your password',
     passwordLength: 'Password must be at least 6 characters',
     loginFailed: 'Login Failed',
-    invalidPhoneFormat: 'Invalid number. Format: 77, 78, 73,71,70',
+    invalidPhoneFormat: 'Invalid number. Must start with 5 and be 9 digits (e.g. 512345678)',
     invalidCredentials: 'Invalid credentials',
     enterPhoneNumber: 'Please enter your phone number',
     signup: 'Signup',
+    signupFailed: 'Signup Failed',
     email: 'email',
     userName: 'Username',
     confirmPassword: 'Confirm Password',
@@ -85,6 +89,8 @@ mixin AppLocale {
     safetyTipRegularUpdatesDesc: 'Keep the app updated to benefit from the latest security patches.',
     chat : "Chat",
     pickContacts : "Pick from Contacts",
+    startChat : "Start",
+    newContact : "New Chat",
   };
 
   static const Map<String, String> AR = {
@@ -98,10 +104,12 @@ mixin AppLocale {
     enterPassword: 'أدخل كلمة المرور',
     passwordLength: 'يحب الا يقل الرمز عن 6 أحرف',
     loginFailed: 'فشل تسجيل الدخول',
-    invalidPhoneFormat: 'رقم غير صحيح. التنسيق: 77,78,73,71,70.',
+    invalidPhoneFormat: 'رقم غير صحيح. يجب أن يبدأ ب 5 ويتكون من 9 أرقام (مثال: 512345678)',
     invalidCredentials: 'بيانات الاعتماد غير صالحة',
     enterPhoneNumber: 'أدخل رقم الهاتف',
     signup: 'إنشاء حساب',
+    signupFailed: 'خطأ في تسجيل الدخول',
+
     email: 'الإميل',
     userName: 'أسم المستخدم',
     confirmPassword: 'تأكيد كلمة المرور',
@@ -129,6 +137,9 @@ mixin AppLocale {
 
     chat : "المراسلات",
     pickContacts : "أختر من جهات الإتصال",
+    startChat : "بدء",
+    newContact : " محادثة جديدة",
+
 
   };
 

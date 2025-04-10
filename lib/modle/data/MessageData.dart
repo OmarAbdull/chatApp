@@ -1,18 +1,22 @@
-class Message {
-  final String text;
+// lib/modle/data/MessageData.dart
+
+enum MessageTypes { text, image }
+class MessageData {
+  final int id; // Add this
+  final int chatId;
+  final String content;
   final DateTime timestamp;
   final bool isRead;
+  final bool senderIsMe;
+  final MessageTypes type;
 
-  Message({
-    required this.text,
+  MessageData({
+    this.id = 0, // Add this
+    required this.chatId,
+    required this.content,
     required this.timestamp,
-    this.isRead = false,
+    required this.isRead,
+    required this.senderIsMe,
+    required this.type,
   });
-  factory Message.fromJson(Map<String, dynamic> json) {
-    return Message(
-      text: json['text'],
-      timestamp: DateTime.parse(json['timestamp']),
-      isRead: json['isRead'],
-    );
-  }
 }

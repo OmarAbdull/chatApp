@@ -14,31 +14,15 @@ class SafetyTipsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final SafetyTipsController controller = Get.put(SafetyTipsController(context));
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+
       appBar: AppBar(
-        title: const Text('Chat Safety Tips'),
+        automaticallyImplyLeading: false,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: const Text('Chat Safety Tips',style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.error.isNotEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(controller.error.value),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => controller.fetchSafetyTips(),
-                  child: const Text('Retry'),
-                )
-              ],
-            ),
-          );
-        }
-
         return RefreshIndicator(
           onRefresh: () => controller.refreshTips(),
           child: ListView.builder(

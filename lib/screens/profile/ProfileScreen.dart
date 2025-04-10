@@ -13,26 +13,48 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 48, 160, 211),
-        titleTextStyle: const TextStyle(color: Colors.white),
-        toolbarHeight: 200,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: Center(
-            child: Column(
-              children: [
-                const ProfilePhotos(),
-                const ProfileName(),
-                const SubName(),
-                const Padding(padding: EdgeInsets.only(top: 10.0)),
-              ],
+    return Obx(() {
+      if (controller.isUpdating.value) {
+        return const CircularProgressIndicator();
+      }
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+
+        appBar: AppBar(
+          automaticallyImplyLeading: false, // This removes the back button
+          backgroundColor:Theme.of(context).colorScheme.primary,
+          titleTextStyle:  TextStyle(color: Colors.white),
+          toolbarHeight: 200,
+          title: Padding(
+            padding: const EdgeInsets.only(top: 35.0),
+            child: Center(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Spacer(), // Pushes everything to the right
+                      Center(child: ProfilePhotos()),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            icon: const Icon(Icons.logout, color: Colors.white),
+                            onPressed: () => controller.logout(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const ProfileName(),
+                  const SubName(),
+                  const Padding(padding: EdgeInsets.only(top: 10.0)),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: const ContactSection(),
-    );
+        body: SingleChildScrollView(child: const ContactSection()),
+      );
+    });
   }
 }

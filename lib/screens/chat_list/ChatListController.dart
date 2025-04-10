@@ -11,53 +11,63 @@ class ChatListController extends GetxController {
 
   @override
   void onInit() {
-    saveChats();
+    super.onInit();
+    final db = AppDatabase();
+    // Listen for database updates
+    db.chatUpdates.listen((_) => fetchChats());
     fetchChats();
     disableScreenshot();
-    super.onInit();
   }
 
   void fetchChats() async {
     try {
       isLoading(true);
       chatList.assignAll(await AppDatabase().getAllChats());
-      print(chatList);
+      chatList.forEach((chat){
+        chat.messages.forEach((message){
+          print("chat Id : ${message.id} chat message : ${message.content}");
+        });
+      });
+
+
     } finally {
       isLoading(false);
     }
+    print("Chat List :$chatList");
   }
 
   void saveChats() async {
     try {
-      isLoading(true);
-      await Future.delayed(Duration(seconds: 2));
+      // List<ChatMessageData> chats = [
+      //   ChatMessageData(
+      //
+      //     id: 1,
+      //     senderName: 'John Doe',
+      //     messages: [
+      //       MessageData(
+      //         chatId: 2,
+      //         content: 'Hey, how are you?',
+      //         timestamp: DateTime.now().subtract(Duration(minutes: 5)),
+      //         isRead: false,
+      //         senderIsMe: false,
+      //         type: MessageTypes.text,
+      //       ),
+      //       MessageData(
+      //         chatId: 2,
+      //         content: 'What’s up?',
+      //         timestamp: DateTime.now().subtract(Duration(minutes: 3)),
+      //         isRead: false,
+      //         senderIsMe: false,
+      //         type: MessageTypes.text,
+      //       ),
+      //     ],
+      //   ),
+      // ];
 
-      List<ChatMessageData> chats = [
-        ChatMessageData(
-          id: 1,
-          senderName: 'John Doe',
-          messages: [
-            Message(text: 'Hey, how are you?', timestamp: DateTime.now().subtract(Duration(minutes: 5)), isRead: false),
-            Message(text: 'What’s up?', timestamp: DateTime.now().subtract(Duration(minutes: 3)), isRead: false),
-          ],
-          avatarUrl: 'https://picsum.photos/200/200', // Avatar for John Doe
-        ),
-        ChatMessageData(
-          id: 2,
-          senderName: 'Jane Smith',
-          messages: [
-            Message(text: 'See you tomorrow!', timestamp: DateTime.now().subtract(Duration(hours: 2)), isRead: true),
-          ],
-          avatarUrl: 'https://picsum.photos/201/201', // Avatar for Jane Smith
-        ),
-      ];
-
-      await AppDatabase().insertChatMessages(chats);
+      // await AppDatabase().insertChatMessages();
 
       List<ChatMessageData> savedChats = await AppDatabase().getAllChats();
       print("Saved chats in the database: $savedChats");
-
-      chatList.assignAll(savedChats);
     } finally {
       isLoading(false);
     }

@@ -7,6 +7,7 @@ import 'localization/localization_service.dart';
 class MyAppController extends GetxController {
   // Theme-related state
   final Rx<ThemeMode> themeMode = ThemeMode.system.obs;
+  final loggedIn = false.obs;
   late SharedPreferences _prefs;
 
   // Localization-related state
@@ -23,6 +24,7 @@ class MyAppController extends GetxController {
   Future<void> initializeSettings() async {
     await _initializeTheme();
     _initializeLocalization();
+    await isLoggedIn();
   }
 
   /// Loads saved theme preference from SharedPreferences.
@@ -36,7 +38,7 @@ class MyAppController extends GetxController {
     final String? savedTheme = _prefs.getString('theme');
     if (savedTheme != null) {
       themeMode.value = ThemeMode.values.firstWhere(
-            (e) => e.toString() == savedTheme,
+        (e) => e.toString() == savedTheme,
         orElse: () => ThemeMode.system,
       );
     }
@@ -46,6 +48,12 @@ class MyAppController extends GetxController {
   void changeTheme(ThemeMode mode) async {
     await _prefs.setString('theme', mode.toString());
     themeMode.value = mode;
+  }
+
+  Future<void> isLoggedIn() async {
+    String? token = _prefs.getString('auth_token');
+    loggedIn.value = token != null && token.isNotEmpty;
+    print("token${token!}");
   }
 
   /// Initializes localization with saved language preference.
@@ -67,12 +75,12 @@ class MyAppController extends GetxController {
 
   // Getters for supported locales and localization delegates.
   List<Locale> get supportedLocales => localizationService.supportedLocales;
+
   List<LocalizationsDelegate<dynamic>> get localizationsDelegates =>
       localizationService.localizationsDelegates;
 
   /// Determines text direction based on the current locale.
-  TextDirection get textDirection =>
-      currentLocale.value?.languageCode == 'ar'
-          ? TextDirection.rtl
-          : TextDirection.ltr;
+  TextDirection get textDirection => currentLocale.value?.languageCode == 'ar'
+      ? TextDirection.rtl
+      : TextDirection.ltr;
 }

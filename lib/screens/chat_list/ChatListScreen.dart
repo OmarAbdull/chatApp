@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../modle/data/ChatMessageData.dart';
+import '../../modle/data/MessageData.dart';
+import '../chat/ChatScreen.dart';
 import '../new_message/NewMessageScreen.dart';
 import 'ChatListController.dart';
 
@@ -17,8 +19,11 @@ class ChatListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: Text(AppLocale.chat.getString(context)),
+        automaticallyImplyLeading: false, // This removes the back button
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: Center(child: Text(AppLocale.chat.getString(context),style: TextStyle(color: Colors.white),)),
       ),
       body: Obx(() {
         if (_chatController.isLoading.value) {
@@ -29,72 +34,79 @@ class ChatListScreen extends StatelessWidget {
           separatorBuilder: (context, index) => Divider(height: 1),
           itemBuilder: (context, index) {
             ChatMessageData chat = _chatController.chatList[index];
-            return ListTile(
-              leading: CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage(chat.avatarUrl),
-              ),
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      chat.senderName,
-                      style: TextStyle(
-                        fontWeight: chat.unreadCount > 0
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    DateFormat('HH:mm').format(
-                      chat.messages.isNotEmpty
-                          ? chat.messages.last.timestamp
-                          : DateTime.now(),
-                    ),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-              subtitle: Text(
-                chat.messages.isNotEmpty
-                    ? (/* chat.isSentByMe */ false
-                        ? 'You: ${chat.messages.last.text}'
-                        : chat.messages.last.text)
-                    : '', // Handle case when there are no messages
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: chat.unreadCount > 0 ? Colors.black : Colors.grey,
-                  fontWeight: chat.unreadCount > 0
-                      ? FontWeight.w500
-                      : FontWeight.normal,
+            return // Updated ListTile in ChatListScreen
+              ListTile(
+                leading: CircleAvatar(
+                  radius: 25,
+                  backgroundImage: chat.avatarImage,
                 ),
-              ),
-              trailing: chat.unreadCount > 0
-                  ? Container(
-                      padding: EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
+                title: Row(
+                  children: [
+                    Expanded(
                       child: Text(
-                        '${chat.unreadCount}',
+                        chat.senderName,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                          fontWeight: chat.unreadCount > 0
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
-                    )
-                  : null,
-              onTap: () {
-                // Navigate to chat detail screen
-                // Get.to(ChatDetailScreen(chat: chat));
-              },
-            );
+                    ),
+                    Text(
+                      DateFormat('HH:mm').format(
+                        chat.messages.isNotEmpty
+                            ? chat.messages.last.timestamp
+                            : DateTime.now(),
+                      ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  chat.messages.isNotEmpty
+                      ? (chat.messages.last.senderIsMe
+                      ? 'You: ${chat.messages.last.type == MessageTypes.text ? chat.messages.last.content : "[Image]"}'
+                      : (chat.messages.last.type == MessageTypes.text
+                      ? chat.messages.last.content
+                      : "[Image]"))
+                      : 'No messages yet', // Show default text for empty chats
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: chat.unreadCount > 0
+                        ? Theme.of(context).colorScheme.onSecondary
+                        : Theme.of(context).colorScheme.onPrimaryContainer,
+                    fontWeight: chat.unreadCount > 0
+                        ? FontWeight.w500
+                        : FontWeight.normal,
+                  ),
+                ),
+                trailing: chat.unreadCount > 0
+                    ? Container(
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${chat.unreadCount}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                )
+                    : null,
+                onTap: () {
+                  print("___________${chat.id}");
+                  Get.toNamed("/Chat", arguments: {'chatId': chat.id},  preventDuplicates: true,
+                  );
+                },
+              );
+
           },
         );
       }),
@@ -104,7 +116,7 @@ class ChatListScreen extends StatelessWidget {
         onPressed: () {
           Get.to(NewMessageScreen()); // Using GetX for navigation
         },
-        child: const Icon(Icons.message),
+        child:  Icon(Icons.message,color: Colors.white,),
       ),
     );
   }

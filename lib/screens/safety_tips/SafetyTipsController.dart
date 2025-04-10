@@ -8,7 +8,6 @@ import '../../modle/data/SafetyTip.dart';
 class SafetyTipsController extends GetxController {
   final RxList<SafetyTip> tips = <SafetyTip>[].obs;
   final RxBool isLoading = true.obs;
-  final RxString error = ''.obs;
 
   late BuildContext context; // Add BuildContext as a member variable
 
@@ -21,7 +20,6 @@ class SafetyTipsController extends GetxController {
   }
 
   Future<void> fetchSafetyTips() async {
-    try {
       isLoading.value = true;
 
       // Fetch localized strings using the context
@@ -61,10 +59,7 @@ class SafetyTipsController extends GetxController {
       ]);
 
       isLoading.value = false;
-    } catch (e) {
-      error.value = 'Failed to load safety tips. Please try again.';
-      isLoading.value = false;
-    }
+
   }
 
   Future<void> refreshTips() async {

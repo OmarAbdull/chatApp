@@ -31,7 +31,6 @@ class LocalizationService {
       _instance.translate(languageCode, save: save);
 
   /// Retrieves the current language name.
-  String getLanguageName() => _instance.getLanguageName();
 
   /// Sets a callback function that triggers when the language is changed.
   set onTranslatedLanguage(void Function(Locale? locale)? callback) {

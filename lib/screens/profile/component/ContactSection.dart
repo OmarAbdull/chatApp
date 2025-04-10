@@ -22,6 +22,28 @@ class ContactSection extends StatelessWidget {
 class ContactDetail extends StatelessWidget {
   final ProfileController controller = Get.find();
 
+  ListTile _buildListTile({
+    required BuildContext context, // Add context parameter
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        value,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      ),
+      dense: true,
+    );
+  }
+
   ContactDetail({super.key});
 
   @override
@@ -33,30 +55,14 @@ class ContactDetail extends StatelessWidget {
         child: Column(
           children: [
             Obx(() => _buildListTile(
-              icon: Icons.phone_android,
-              title: AppLocale.phoneNumber.getString(context),
-              value: controller.phone.value,
-            )),
-
+                  context: context, // Pass context here
+                  icon: Icons.phone_android,
+                  title: AppLocale.phoneNumber.getString(context),
+                  value: controller.phone.value,
+                )),
           ],
         ),
       ),
-    );
-  }
-
-  ListTile _buildListTile(
-      {required IconData icon, required String title, required String value}) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Text(
-        value,
-        style: const TextStyle(color: Colors.black),
-      ),
-      dense: true,
     );
   }
 }
@@ -69,9 +75,9 @@ class ContactStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Card(
+    return Card(
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        child:Container(
+        child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -81,14 +87,28 @@ class ContactStatus extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        child: const Text('English'),
+                        child: Text(
+                          'English',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondary,
+                          ),
+                        ),
                         onPressed: () => settingController.changeLanguage('en'),
                       ),
                     ),
                     const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
-                        child: const Text('العربية'),
+                        child: Text(
+                          'العربية',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondary,
+                          ),
+                        ),
                         onPressed: () => settingController.changeLanguage('ar'),
                       ),
                     ),
@@ -98,32 +118,32 @@ class ContactStatus extends StatelessWidget {
               const SizedBox(height: 16.0),
               // Wrap only theme selection in Obx
               Obx(() => Column(
-                children: [
-                  RadioListTile<ThemeMode>(
-                    title: Text(AppLocale.lightTheme.getString(context)),
-                    value: ThemeMode.light,
-                    groupValue: settingController.themeMode.value,
-                    onChanged: (value) => settingController.changeTheme(value!),
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(AppLocale.darkTheme.getString(context)),
-                    value: ThemeMode.dark,
-                    groupValue: settingController.themeMode.value,
-                    onChanged: (value) => settingController.changeTheme(value!),
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(AppLocale.systemTheme.getString(context)),
-                    value: ThemeMode.system,
-                    groupValue: settingController.themeMode.value,
-                    onChanged: (value) => settingController.changeTheme(value!),
-                  ),
-                ],
-              ))
+                    children: [
+                      RadioListTile<ThemeMode>(
+                        title: Text(AppLocale.lightTheme.getString(context)),
+                        value: ThemeMode.light,
+                        groupValue: settingController.themeMode.value,
+                        onChanged: (value) =>
+                            settingController.changeTheme(value!),
+                      ),
+                      RadioListTile<ThemeMode>(
+                        title: Text(AppLocale.darkTheme.getString(context)),
+                        value: ThemeMode.dark,
+                        groupValue: settingController.themeMode.value,
+                        onChanged: (value) =>
+                            settingController.changeTheme(value!),
+                      ),
+                      RadioListTile<ThemeMode>(
+                        title: Text(AppLocale.systemTheme.getString(context)),
+                        value: ThemeMode.system,
+                        groupValue: settingController.themeMode.value,
+                        onChanged: (value) =>
+                            settingController.changeTheme(value!),
+                      ),
+                    ],
+                  ))
             ],
           ),
-        )
-
-
-    );
+        ));
   }
 }

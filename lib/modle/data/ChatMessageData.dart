@@ -1,43 +1,40 @@
+// lib/modle/data/ChatMessageData.dart
+
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+
 import 'MessageData.dart';
 
 class ChatMessageData {
   final int id;
   final String senderName;
-  final List<Message> messages;  // List of messages
-  final String avatarUrl;
+  final String userKey;
+  final String avatarBase64;
+  final List<MessageData> messages;
 
-  // Calculate unread count based on the number of unread messages
   int get unreadCount => messages.where((msg) => !msg.isRead).length;
 
   ChatMessageData({
     required this.id,
+    required this.userKey,
+    required this.avatarBase64,
     required this.senderName,
     required this.messages,
-    required this.avatarUrl,
   });
-  // Constructor to create a ChatMessage from the API JSON data
-  factory ChatMessageData.fromApiJson(Map<String, dynamic> json) {
-    var messageList = (json['messages'] as List)
-        .map((messageJson) => Message.fromJson(messageJson))
-        .toList();
 
-    return ChatMessageData(
-      id: json['id'],
-      senderName: json['senderName'],
-      avatarUrl: json['avatarUrl'],
-      messages: messageList,
-    );
-  }
+  ImageProvider get avatarImage {
+    if (avatarBase64.isEmpty ) {
+      return const AssetImage('default_avatar.png');
+    }
 
-  factory ChatMessageData.fromJson(Map<String, dynamic> json) {
-    return ChatMessageData(
-      id: json['id'],
-      senderName: json['sender'],
-      messages: (json['messages'] as List)
-          .map((msg) => Message.fromJson(msg))
-          .toList(),
-      avatarUrl: json['avatarUrl'],
-    );
+    try {
+      final cleanBase64 = avatarBase64.replaceFirst(RegExp(r'^.*?base64,'), '');
+      final bytes = base64Decode(cleanBase64);
+      return MemoryImage(bytes);
+    } catch (e) {
+      debugPrint('Error decoding avatar image: $e');
+      return const AssetImage('assets/default_avatar.png');
+    }
   }
 }
-
