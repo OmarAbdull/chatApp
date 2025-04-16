@@ -10,9 +10,13 @@ import 'package:chat_app/modle/data/MessageData.dart';
 // flutter pub run build_runner build
 // flutter pub run build_runner watch --delete-conflicting-outputs
 class AppDatabase {
+  static final AppDatabase _instance = AppDatabase._internal();
+  factory AppDatabase() => _instance;
+  AppDatabase._internal();
+
   static Database? _database;
   final StreamController<int> _chatUpdateController =
-      StreamController<int>.broadcast();
+  StreamController<int>.broadcast();
 
   Stream<int> get chatUpdates => _chatUpdateController.stream;
 
@@ -106,6 +110,7 @@ class AppDatabase {
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    _chatUpdateController.add(id); // Notify listeners after insert/update
     return ChatMessageData(
       id: id,
       senderName: senderName,
@@ -116,25 +121,30 @@ class AppDatabase {
   }
 
   Future<ChatMessageData?> getChatById(int chatId) async {
-    final db = await database;
-    final chatRow = await db.query(
-      Chat.tableName,
-      where: '${Chat.columnId} = ?',
-      whereArgs: [chatId],
-    );
+    try {
+      final db = await database;
+      final chatRow = await db.query(
+        Chat.tableName,
+        where: '${Chat.columnId} = ?',
+        whereArgs: [chatId],
+      );
 
-    if (chatRow.isEmpty) return null;
-    final messages = await _getMessagesForChat(chatId);
+      if (chatRow.isEmpty) return null;
 
-    return ChatMessageData(
-      id: chatId,
-      senderName: chatRow.first[Chat.columnSenderName] as String,
-      userKey: chatRow.first[Chat.columnUserKey] as String,
-      avatarBase64: chatRow.first[Chat.columnAvatarBase64] as String,
-      messages: messages,
-    );
+      final messages = await _getMessagesForChat(chatId);
+
+      return ChatMessageData(
+        id: chatId,
+        senderName: chatRow.first[Chat.columnSenderName] as String,
+        userKey: chatRow.first[Chat.columnUserKey] as String,
+        avatarBase64: chatRow.first[Chat.columnAvatarBase64] as String,
+        messages: messages,
+      );
+    } catch (e) {
+      print('Error in getChatByIdddd: $e');
+      return null;
+    }
   }
-
   Future<void> insertChatMessages(List<ChatMessageData> chatList) async {
     final db = await database;
 
@@ -155,7 +165,7 @@ class AppDatabase {
             ChatMessage.columnChatId: chatId,
             ChatMessage.columnContent: message.content,
             ChatMessage.columnTimestamp:
-                message.timestamp.millisecondsSinceEpoch,
+            message.timestamp.millisecondsSinceEpoch,
             ChatMessage.columnIsRead: message.isRead ? 1 : 0,
             ChatMessage.columnSenderIsMe: message.senderIsMe ? 1 : 0,
             ChatMessage.columnType: message.type.index,
@@ -166,13 +176,15 @@ class AppDatabase {
     }
   }
 
-  Future<List<ChatMessageData>> getAllChats() async {
+  Future<List<ChatMessageData>?> getAllChats() async {
     final db = await database;
     final List<Map<String, dynamic>> chats = await db.query(
       Chat.tableName,
       orderBy: '${Chat.columnId} DESC',
     );
-
+    if (chats.isEmpty) {
+      return null;
+    }
     final List<ChatMessageData> result = [];
 
     for (final chatRow in chats) {
@@ -209,16 +221,16 @@ class AppDatabase {
 
     return messages
         .map((msg) => MessageData(
-              id: msg[ChatMessage.columnId] as int,
-              chatId: msg[ChatMessage.columnChatId] as int,
-              content: msg[ChatMessage.columnContent] as String,
-              timestamp: DateTime.fromMillisecondsSinceEpoch(
-                msg[ChatMessage.columnTimestamp] as int,
-              ),
-              isRead: (msg[ChatMessage.columnIsRead] as int) == 1,
-              senderIsMe: (msg[ChatMessage.columnSenderIsMe] as int) == 1,
-              type: MessageTypes.values[msg[ChatMessage.columnType] as int],
-            ))
+      id: msg[ChatMessage.columnId] as int,
+      chatId: msg[ChatMessage.columnChatId] as int,
+      content: msg[ChatMessage.columnContent] as String,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(
+        msg[ChatMessage.columnTimestamp] as int,
+      ),
+      isRead: (msg[ChatMessage.columnIsRead] as int) == 1,
+      senderIsMe: (msg[ChatMessage.columnSenderIsMe] as int) == 1,
+      type: MessageTypes.values[msg[ChatMessage.columnType] as int],
+    ))
         .toList();
   }
 

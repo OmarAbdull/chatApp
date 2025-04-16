@@ -21,7 +21,7 @@ class WebSocketService {
       throw Exception('No authentication token found');
     }
 
-    const url = 'ws://10.0.0.68:5231/chat';
+    const url = 'ws://salmansh-001-site1.otempurl.com/chat';
 
     try {
       // Create WebSocket connection with authorization header

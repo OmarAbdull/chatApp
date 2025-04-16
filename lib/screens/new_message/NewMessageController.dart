@@ -10,8 +10,8 @@ class NewMessageController extends GetxController {
   Future<void> checkUserAndStartChat(String phoneNumber) async {
     try {
       final response = await _apiService.authenticatedPost(
-        'Users/getUserData',
-        {"ID": phoneNumber, "PhoneNumber": phoneNumber},
+        'Users/GetUserData',
+        {"ID": null, "PhoneNumber": phoneNumber},
       );
 
       if (response['code'] == 1000) {
@@ -19,7 +19,7 @@ class NewMessageController extends GetxController {
         final userId = userData['id'] as int;
         final userKey = userData['userKey'] as String;
         final String base64image = userData['userImage'] ?? '';
-        final senderName = userData['name'] ?? phoneNumber;
+        final senderName = userData['userName'] ;
 
         // Process base64 image
         String? processedImage = base64image;

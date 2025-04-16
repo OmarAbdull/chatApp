@@ -37,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Username'),
+        title: Obx(() => Text(_chatController.sender.value)),
       ),
       body: GetBuilder<ChatController>(builder: (controller) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -18,7 +18,7 @@ class ProfileController extends GetxController {
   final email = "aseps.career@gmail.com".obs;
   final website = "asepsaputra.medium.com".obs;
   final status = "Available".obs;
-  final name = "Asep Saputra".obs;
+  final name = "".obs;
   final subTitle = "Traveller - Dreamer - Fighter".obs;
   final Rx<File?> profileImageFile = Rx<File?>(null);
   final String defaultProfileImageUrl = "https://picsum.photos/300/300";

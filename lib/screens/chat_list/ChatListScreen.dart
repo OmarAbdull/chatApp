@@ -21,103 +21,109 @@ class ChatListScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This removes the back button
+        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).colorScheme.primary,
-        title: Center(child: Text(AppLocale.chat.getString(context),style: TextStyle(color: Colors.white),)),
+        title: Center(
+          child: Text(
+            AppLocale.chat.getString(context),
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       ),
       body: Obx(() {
         if (_chatController.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
         return ListView.separated(
           itemCount: _chatController.chatList.length,
-          separatorBuilder: (context, index) => Divider(height: 1),
+          separatorBuilder: (context, index) => const Divider(height: 1),
           itemBuilder: (context, index) {
-            ChatMessageData chat = _chatController.chatList[index];
-            return // Updated ListTile in ChatListScreen
-              ListTile(
-                leading: CircleAvatar(
-                  radius: 25,
-                  backgroundImage: chat.avatarImage,
-                ),
-                title: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        chat.senderName,
-                        style: TextStyle(
-                          fontWeight: chat.unreadCount > 0
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      DateFormat('HH:mm').format(
-                        chat.messages.isNotEmpty
-                            ? chat.messages.last.timestamp
-                            : DateTime.now(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                subtitle: Text(
-                  chat.messages.isNotEmpty
-                      ? (chat.messages.last.senderIsMe
-                      ? 'You: ${chat.messages.last.type == MessageTypes.text ? chat.messages.last.content : "[Image]"}'
-                      : (chat.messages.last.type == MessageTypes.text
-                      ? chat.messages.last.content
-                      : "[Image]"))
-                      : 'No messages yet', // Show default text for empty chats
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: chat.unreadCount > 0
-                        ? Theme.of(context).colorScheme.onSecondary
-                        : Theme.of(context).colorScheme.onPrimaryContainer,
-                    fontWeight: chat.unreadCount > 0
-                        ? FontWeight.w500
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: chat.unreadCount > 0
-                    ? Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${chat.unreadCount}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
-                )
-                    : null,
-                onTap: () {
-                  print("___________${chat.id}");
-                  Get.toNamed("/Chat", arguments: {'chatId': chat.id},  preventDuplicates: true,
-                  );
-                },
-              );
+            final chat = _chatController.chatList[index];
+            final lastMessage = chat.messages.lastOrNull;
+            final unreadCount = chat.messages.where((m) => !m.isRead).length;
 
+            return ListTile(
+              leading: CircleAvatar(
+                radius: 25,
+                backgroundImage: chat.avatarImage,
+              ),
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      chat.senderName,
+                      style: TextStyle(
+                        fontWeight: unreadCount > 0
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    lastMessage != null
+                        ? DateFormat('HH:mm').format(lastMessage.timestamp)
+                        : '',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              subtitle: Text(
+                _buildSubtitle(chat, lastMessage),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: unreadCount > 0
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: unreadCount > 0
+                      ? FontWeight.w500
+                      : FontWeight.normal,
+                ),
+              ),
+              trailing: unreadCount > 0
+                  ? Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '$unreadCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                ),
+              )
+                  : null,
+              onTap: () {
+                Get.toNamed(
+                  "/Chat",
+                  arguments: {'chatId': chat.id},
+                  preventDuplicates: true,
+                );
+              },
+            );
           },
         );
       }),
-
-      // Floating Action Button at the Bottom
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.to(NewMessageScreen()); // Using GetX for navigation
-        },
-        child:  Icon(Icons.message,color: Colors.white,),
+        onPressed: () => Get.to(const NewMessageScreen()),
+        child: const Icon(Icons.message, color: Colors.white),
       ),
     );
+  }
+
+  String _buildSubtitle(ChatMessageData chat, MessageData? lastMessage) {
+    if (lastMessage == null) return 'No messages yet';
+
+    final content = lastMessage.type == MessageTypes.text
+        ? lastMessage.content
+        : "[Image]";
+
+    return lastMessage.senderIsMe ? 'You: $content' : content;
   }
 }

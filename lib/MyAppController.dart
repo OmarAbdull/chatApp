@@ -53,7 +53,6 @@ class MyAppController extends GetxController {
   Future<void> isLoggedIn() async {
     String? token = _prefs.getString('auth_token');
     loggedIn.value = token != null && token.isNotEmpty;
-    print("token${token!}");
   }
 
   /// Initializes localization with saved language preference.

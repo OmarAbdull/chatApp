@@ -22,15 +22,12 @@ class   LoginController extends GetxController {
 
     super.onInit();
     await _initializeSharedPreferences();
-    await _initializeTheme();
   }
   Future<void> _initializeSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  Future<void> _initializeTheme() async {
-    _prefs = await SharedPreferences.getInstance();
-  }
+
 
   void updatePhoneNumber(String value) => phoneNumber.value = value;
 
@@ -80,6 +77,8 @@ class   LoginController extends GetxController {
       // Check API response code
       if (response['code'] == 1000) {
         _prefs?.setString("auth_token", response['result']['token']);
+        _prefs?.setString("user_key", response['result']['userKey']);
+        _prefs?.setString("user_name", response['result']['username']);
         print("Token  : ${response['result']['token']}");
         isLoggedIn(true);
         final webSocketService = WebSocketService();

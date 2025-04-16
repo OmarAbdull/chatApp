@@ -1,8 +1,11 @@
 // bottom_nav_controller.dart
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../modle/WebSocketService.dart';
 import '../../modle/api/ApiServixe.dart';
 import '../../modle/data/ChatMessageData.dart';
@@ -35,7 +38,7 @@ class BottomNavController extends GetxController {
     try {
       final response = await _apiService.authenticatedPost(
         'Users/getUserData',
-        {"ID": userId, "PhoneNumber": null},
+        {"ID": userId, "PhoneNumber": ""},
       );
 
       if (response['code'] == 1000) {
@@ -58,7 +61,6 @@ class BottomNavController extends GetxController {
         );
 
         print("Successfully added user ID: $userId");
-        Get.toNamed("/Chat", arguments: userId, preventDuplicates: true);
       } else {
         Get.snackbar('Error', 'User not found on the server');
       }
@@ -77,8 +79,8 @@ class BottomNavController extends GetxController {
     }
 
     // Handle type with type checking
-    final messageType = message['type'];
-    print('Type: ${messageType ?? "Null"} (${messageType.runtimeType})');
+    // final messageType = message['type'];
+    // print('Type: ${messageType ?? "Null"} (${messageType.runtimeType})');
 
     // Handle target with fallback
     final target = message['target']?.toString() ?? 'No target specified';
@@ -93,13 +95,20 @@ class BottomNavController extends GetxController {
 
     // Extract and validate individual arguments
     try {
-      final name = arguments[0]?.toString() ?? 'Unknown';
-      final phoneNumber = arguments[1]?.toString() ?? 'Not provided';
-      final id = (arguments[2] is num ? arguments[2].toInt() : 0);
+      final id = int.tryParse(arguments[0]?.toString() ?? '') ?? -1;
+      final message_content = arguments[1]?.toString() ?? 'Not provided';
+      final type = int.tryParse(arguments[2]?.toString() ?? '') ?? 0;
 
-      print('Name: $name ');
-      print('Phone: $phoneNumber ');
+
+      print('message: $message_content ');
+      print('Date: $type ');
       print('ID: $id ');
+
+      String processedContent = message_content;
+      if(type==1){
+        final filePath = await saveMediaToFile(message_content); // Implement this
+        processedContent = filePath;
+      }
 
       // Database check and handling
       if (id != 0) {
@@ -116,7 +125,7 @@ class BottomNavController extends GetxController {
           userKey = existingChat.userKey;
           if (userKey.isNotEmpty) {
             try {
-              decryptedContent = decryptMessage(message['target'], userKey);
+              //decryptedContent = decryptMessage(message['target'], userKey);
             } catch (e) {
               print('Decryption error: $e');
               Get.snackbar('Error', 'Failed to decrypt message');
@@ -128,14 +137,12 @@ class BottomNavController extends GetxController {
 
         final newMessage = MessageData(
           chatId: id,
-          content: decryptedContent ??
-              message['target']?.toString() ??
-              'Unknown message',
+          content: processedContent,
           timestamp: DateTime.now(),
           isRead: false,
           senderIsMe: false,
           type:
-              MessageTypes.values[message['type'] is int ? message['type'] : 0],
+              MessageTypes.values[type],
         );
         await appDatabase.insertMessage(newMessage);
       }
@@ -144,12 +151,19 @@ class BottomNavController extends GetxController {
       Get.snackbar('Error', 'Failed to process chat message');
     }
   }
-
+///if the message is image this code to convert it from base64 to image
   String decryptMessage(String encryptedBase64, String key) {
     final keyBytes = Key.fromUtf8(key.padRight(32, ' ')); // 32-byte key
     final encrypter = Encrypter(AES(keyBytes, mode: AESMode.ecb)); // ECB mode
     final encrypted = Encrypted.fromBase64(encryptedBase64);
     return encrypter.decrypt(encrypted);
+  }
+  Future<String> saveMediaToFile(String base64Data) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.dat';
+    final bytes = base64Decode(base64Data.split(',').last);
+    await File(filePath).writeAsBytes(bytes);
+    return filePath;
   }
 
   @override

@@ -28,27 +28,30 @@ class ProfileScreen extends StatelessWidget {
           title: Padding(
             padding: const EdgeInsets.only(top: 35.0),
             child: Center(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Spacer(), // Pushes everything to the right
-                      Center(child: ProfilePhotos()),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.logout, color: Colors.white),
-                            onPressed: () => controller.logout(),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Spacer(), // Pushes everything to the right
+                        Center(child: ProfilePhotos()),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: IconButton(
+                              icon: const Icon(Icons.logout, color: Colors.white),
+                              onPressed: () => controller.logout(),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const ProfileName(),
-                  const SubName(),
-                  const Padding(padding: EdgeInsets.only(top: 10.0)),
-                ],
+                      ],
+                    ),
+                    const ProfileName(),
+                    const SubName(),
+                    const Padding(padding: EdgeInsets.only(top: 10.0)),
+                  ],
+                ),
               ),
             ),
           ),

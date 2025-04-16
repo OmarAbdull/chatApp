@@ -13,6 +13,8 @@ class ApiService {
   /// Sends a POST request to the given [endpoint] with the provided [body].
 // In ApiService class
   Future<dynamic> post(String endpoint, dynamic body) async {
+    print("Url :$_baseUrl/$endpoint ");
+    print("Body :$body ");
     final response = await http.post(
       Uri.parse('$_baseUrl/$endpoint'),
       headers: {'Content-Type': 'application/json'},
@@ -30,7 +32,7 @@ class ApiService {
   Future<dynamic> authenticatedPost(String endpoint, dynamic body) async {
     final token = await _getToken();
     final uri = Uri.parse('$_baseUrl/$endpoint');
-    print("Url$_baseUrl/$endpoint");
+    print("Url:$_baseUrl/$endpoint");
     print("body$body");
 
     try {
