@@ -14,7 +14,9 @@ class SignupController extends GetxController {
   final confirmPassword = ''.obs;
   final username = ''.obs;
   final isPasswordVisible = false.obs;
-  final isSignup = false.obs;
+  final isConPasswordVisible = false.obs;
+  final isLoading = false.obs;
+
 
   void updatePhoneNumber(String value) => phoneNumber.value = value;
 
@@ -26,21 +28,31 @@ class SignupController extends GetxController {
 
   void togglePasswordVisibility() => isPasswordVisible.toggle();
 
+  void toggleConPasswordVisibility() => isConPasswordVisible.toggle();
+
   String? validatePhoneNumber(String? value, BuildContext context) {
-    if (value == null || value.isEmpty && isSignup.value) {
+    if (value == null || value.isEmpty ) {
+      print(AppLocale.enterPhoneNumber.getString(context));
+
       return AppLocale.getString(context, AppLocale.enterPhoneNumber);
     }
-    if (!RegExp(r'^5[0-9]{8}$').hasMatch(value) && isSignup.value) {
+    if (!RegExp(r'^5[0-9]{8}$').hasMatch(value) ) {
+      print(AppLocale.invalidPhoneFormat.getString(context));
+
       return AppLocale.getString(context, AppLocale.invalidPhoneFormat);
     }
     return null;
   }
 
   String? validatePassword(String? value, BuildContext context) {
-    if (value == null || value.isEmpty && isSignup.value) {
+    if (value == null || value.isEmpty ) {
+      print(AppLocale.enterPassword.getString(context));
+
       return AppLocale.getString(context, AppLocale.enterPassword);
     }
-    if (value.length < 6 && isSignup.value) {
+    if (value.length < 6 ) {
+      print(AppLocale.passwordLength.getString(context));
+
       return AppLocale.getString(context, AppLocale.passwordLength);
     }
     return null;
@@ -58,29 +70,31 @@ class SignupController extends GetxController {
   // }
 
   String? validateConfirmPassword(String? value, BuildContext context) {
-    if (value == null || value.isEmpty && isSignup.value) {
+    if (value == null || value.isEmpty ) {
+      print(AppLocale.enterConfirmPassword.getString(context));
       return AppLocale.enterConfirmPassword.getString(context);
-    } else if (value != password.value && isSignup.value) {
+    } else if (value != password.value ) {
+      print(AppLocale.matchPassword.getString(context));
       return AppLocale.matchPassword.getString(context);
     }
     return null;
   }
 
   String? validateUsername(String? value, BuildContext context) {
-    if (value == null || value.isEmpty && isSignup.value) {
+    if (value == null || value.isEmpty ) {
       return AppLocale.getString(context, AppLocale.enterUsername);
     }
     return null;
   }
 
   Future<void> signup(BuildContext context) async {
-    isSignup.value = true;
+    isLoading.value= true;
     // Validate fields
     if (validatePhoneNumber(phoneNumber.value, context) != null ||
         validateConfirmPassword(password.value, context) != null ||
         validateUsername(username.value, context) != null ||
         validatePassword(password.value, context) != null) {
-      isSignup(false);
+      isLoading(false);
       return;
     }
 
@@ -109,7 +123,7 @@ class SignupController extends GetxController {
       Get.snackbar('Error', e.toString());
       print(e);
     } finally {
-      isSignup.value = false;
+      isLoading(false);
     }
   }
 }

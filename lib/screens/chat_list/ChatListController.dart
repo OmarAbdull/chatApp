@@ -22,10 +22,6 @@ class ChatListController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final db = AppDatabase();
-    _dbUpdateSubscription = db.chatUpdates.listen((chatId) {
-      fetchChats(); // Refresh whenever any chat updates
-    });
     fetchChats();
     disableScreenshot();
   }

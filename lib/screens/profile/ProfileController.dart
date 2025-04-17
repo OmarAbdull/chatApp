@@ -122,7 +122,11 @@ class ProfileController extends GetxController {
     }
   }
 
-  void logout() {
+  void logout() async{
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.setString("auth_token", "");
+
     Get.offAllNamed('/Login');
   }
 }

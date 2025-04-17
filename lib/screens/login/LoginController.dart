@@ -11,7 +11,7 @@ class   LoginController extends GetxController {
   late var phoneNumber = ''.obs; // Stores national number without country code
   final password = ''.obs;
   SharedPreferences? _prefs;
-  final isLoading = false.obs;
+    final isLoading = false.obs;
   final isPasswordVisible = false.obs;
   final isLogin = false.obs;
   var isLoggedIn = false.obs;

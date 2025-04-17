@@ -11,6 +11,7 @@ import '../../modle/api/ApiServixe.dart';
 import '../../modle/data/ChatMessageData.dart';
 import '../../modle/data/MessageData.dart';
 import '../../modle/database/App_db.dart';
+import '../chat_list/ChatListController.dart';
 
 class BottomNavController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -145,6 +146,9 @@ class BottomNavController extends GetxController {
               MessageTypes.values[type],
         );
         await appDatabase.insertMessage(newMessage);
+        if (Get.isRegistered<ChatListController>()) {
+          Get.find<ChatListController>().fetchChats();
+        }
       }
     } catch (e) {
       print('Error handling message: $e');
