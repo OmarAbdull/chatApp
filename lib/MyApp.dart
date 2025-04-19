@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
     final controller = Get.find<MyAppController>();
     return Obx(() {
       return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData.light().copyWith(
           colorScheme: ColorScheme.light(
             primary: Color(0xFF25337a),

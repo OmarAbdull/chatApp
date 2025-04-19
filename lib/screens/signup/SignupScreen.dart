@@ -1,3 +1,6 @@
+import 'package:country_pickers/country.dart';
+import 'package:country_pickers/country_picker_dropdown.dart';
+import 'package:country_pickers/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
@@ -50,20 +53,29 @@ class SignupScreen extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 /// Phone Number
-                Obx(() {
-                  _controller.phoneNumber.value; // Track phone changes
-                  return TextFormField(
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: AppLocale.phoneNumber.getString(context),
-                      prefixText: '+966 ',
-                      hintText: '512345678',
+                Row(
+                  children: [
+                    CountryPickerDropdown(
+                      initialValue: 'SA',
+                      itemBuilder: _buildDropdownItem,
+                      onValuePicked: (Country country) {
+                        _controller.updateCountryCode(country.phoneCode);
+                      },
                     ),
-                    onChanged: _controller.updatePhoneNumber,
-                    validator: (value) =>
-                        _controller.validatePhoneNumber(value, context),
-                  );
-                }),
+                    Expanded(
+                      child: TextFormField(
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: AppLocale.phoneNumber.getString(context),
+                          // Remove prefixText
+                        ),
+                        onChanged: _controller.updatePhoneNumber,
+                        validator: (value) =>
+                            _controller.validatePhoneNumber(value, context),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
 
                 /// Password
@@ -140,4 +152,12 @@ class SignupScreen extends StatelessWidget {
       ),
     );
   }
+  Widget _buildDropdownItem(Country country) => Row(
+    children: <Widget>[
+      CountryPickerUtils.getDefaultFlagImage(country),
+      const SizedBox(width: 8),
+      Text("+${country.phoneCode}"),
+    ],
+  );
+
 }

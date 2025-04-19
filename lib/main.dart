@@ -5,9 +5,11 @@ import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
 import 'MyApp.dart';
 import 'MyAppController.dart';
+import 'modle/NotificationHelper.dart';
 Future<void> main() async {
   await dotenv.load(fileName: ".env");  // Load .env file
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationHelper.initialize();
   await FlutterLocalization.instance.ensureInitialized();
   Get.put(AppDatabase());
   Get.put(MyAppController());

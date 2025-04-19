@@ -235,6 +235,7 @@ class AppDatabase {
   }
 
   Future<int> markMessagesAsRead(int chatId) async {
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     final db = await database;
     return await db.update(
       ChatMessage.tableName,

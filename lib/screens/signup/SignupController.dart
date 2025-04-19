@@ -16,7 +16,10 @@ class SignupController extends GetxController {
   final isPasswordVisible = false.obs;
   final isConPasswordVisible = false.obs;
   final isLoading = false.obs;
+  var countryCode = '+966'.obs; // Default country code
 
+
+  void updateCountryCode(String value) => countryCode.value = value;
 
   void updatePhoneNumber(String value) => phoneNumber.value = value;
 
@@ -32,13 +35,9 @@ class SignupController extends GetxController {
 
   String? validatePhoneNumber(String? value, BuildContext context) {
     if (value == null || value.isEmpty ) {
-      print(AppLocale.enterPhoneNumber.getString(context));
-
       return AppLocale.getString(context, AppLocale.enterPhoneNumber);
     }
-    if (!RegExp(r'^5[0-9]{8}$').hasMatch(value) ) {
-      print(AppLocale.invalidPhoneFormat.getString(context));
-
+    if (!RegExp(r'^\d+$').hasMatch(value) ) { // Only numbers allowed
       return AppLocale.getString(context, AppLocale.invalidPhoneFormat);
     }
     return null;
@@ -103,7 +102,7 @@ class SignupController extends GetxController {
           'Auth/register',
           ({
             "userName": username.value,
-            "phoneNumber": phoneNumber.value,
+            "phoneNumber": '${countryCode.value}${phoneNumber.value}',
             "password": password.value,
             "userType": "2"
           }));

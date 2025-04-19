@@ -3,14 +3,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import '../../modle/data/ChatMessageData.dart';
-import '../../modle/data/MessageData.dart';
-import '../../modle/database/App_db.dart';
-
-import 'dart:async';
-import 'package:get/get.dart';
-import 'package:no_screenshot/no_screenshot.dart';
-import '../../modle/data/ChatMessageData.dart';
-import '../../modle/data/MessageData.dart';
 import '../../modle/database/App_db.dart';
 
 class ChatListController extends GetxController {
@@ -23,6 +15,9 @@ class ChatListController extends GetxController {
   void onInit() {
     super.onInit();
     fetchChats();
+    _dbUpdateSubscription = AppDatabase().chatUpdates.listen((_) {
+      fetchChats(); // Refresh chat list when DB changes
+    });
     disableScreenshot();
   }
 
@@ -43,10 +38,24 @@ class ChatListController extends GetxController {
             userKey: c.userKey,
             avatarBase64: c.avatarBase64,
             messages: List.from(c.messages),
-          ))?.toList() ?? []
+          )).toList() ?? []
       );
     } finally {
       isLoading(false);
+    }
+  }
+  // Inside ChatListController
+  void markMessagesAsRead(int chatId) async {
+    try {
+      // Update local state
+      final index = chatList.indexWhere((chat) => chat.id == chatId);
+      if (index != -1) {
+        final chat = chatList[index];
+        final updatedMessages = chat.messages.map((message) => message.copyWith(isRead: true)).toList();
+        chatList[index] = chat.copyWith(messages: updatedMessages);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to mark messages as read');
     }
   }
 

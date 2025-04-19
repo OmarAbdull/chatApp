@@ -105,6 +105,8 @@ class ChatListScreen extends StatelessWidget {
                   arguments: {'chatId': chat.id},
                   preventDuplicates: true,
                 );
+                _chatController.markMessagesAsRead(chat.id); // Mark as read
+
               },
             );
           },

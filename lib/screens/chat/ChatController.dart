@@ -47,11 +47,11 @@ class ChatController extends GetxController {
     final userKey = _prefs?.getString("user_key");
     if (message is types.TextMessage) {
 
-      // final encryptedText = encryptMessage(message.text, userKey!);
+      final encryptedText = encryptMessage(message.text, userKey!);
 
       final requestBody = {
         "receiverID": currentChatId,
-        "messageContent": message.text,
+        "messageContent": encryptedText,
         "messageType": 0,
         "messageState": 1,
         "isRead": false,
@@ -96,6 +96,8 @@ class ChatController extends GetxController {
     try {
       final bytes = await File(imagePath).readAsBytes();
       final base64Image = base64Encode(bytes);
+      final encryptedText = encryptMessage(base64Image, userKey!);
+
       final messageData = MessageData(
         chatId: currentChatId!,
         content: imagePath,
@@ -109,7 +111,7 @@ class ChatController extends GetxController {
 
       final requestBody = {
         "receiverID": currentChatId,
-        "messageContent": base64Image,
+        "messageContent": encryptedText,
         "messageType": 1, // Adjust based on your API's requirements
         "messageState": 1,
         "isRead": false,

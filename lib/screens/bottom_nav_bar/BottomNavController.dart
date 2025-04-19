@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:encrypt/encrypt.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../modle/NotificationHelper.dart';
 import '../../modle/WebSocketService.dart';
 import '../../modle/api/ApiServixe.dart';
 import '../../modle/data/ChatMessageData.dart';
@@ -46,7 +47,7 @@ class BottomNavController extends GetxController {
         final userData = response['result'];
         final userKey = userData['userKey'] as String;
         final String base64image = userData['userImage'] ?? '';
-        final senderName = userData['name'] ?? 'Unknown';
+        final senderName = userData['userName'] ?? 'Unknown';
 
         String? processedImage = base64image;
         if (base64image.contains(',')) {
@@ -104,18 +105,14 @@ class BottomNavController extends GetxController {
       print('message: $message_content ');
       print('Date: $type ');
       print('ID: $id ');
+      var decryptedContent = "".obs;
 
-      String processedContent = message_content;
-      if(type==1){
-        final filePath = await saveMediaToFile(message_content); // Implement this
-        processedContent = filePath;
-      }
+
 
       // Database check and handling
       if (id != 0) {
         final appDatabase = AppDatabase();
         ChatMessageData? existingChat = await appDatabase.getChatById(id);
-        String? decryptedContent;
         String? userKey;
 
         if (existingChat == null) {
@@ -126,19 +123,23 @@ class BottomNavController extends GetxController {
           userKey = existingChat.userKey;
           if (userKey.isNotEmpty) {
             try {
-              //decryptedContent = decryptMessage(message['target'], userKey);
+              decryptedContent.value = decryptMessage(message_content, userKey);
             } catch (e) {
               print('Decryption error: $e');
               Get.snackbar('Error', 'Failed to decrypt message');
-              decryptedContent =
+              decryptedContent.value =
                   message['target']?.toString() ?? 'Undecryptable message';
             }
           }
         }
-
+        String? imagePath;
+        if (type == 1) {
+          imagePath = await saveMediaToFile(decryptedContent.value);
+          decryptedContent.value = imagePath;
+        }
         final newMessage = MessageData(
           chatId: id,
-          content: processedContent,
+          content: decryptedContent.value,
           timestamp: DateTime.now(),
           isRead: false,
           senderIsMe: false,
@@ -149,6 +150,21 @@ class BottomNavController extends GetxController {
         if (Get.isRegistered<ChatListController>()) {
           Get.find<ChatListController>().fetchChats();
         }
+
+        String notificationBody;
+        switch (newMessage.type) {
+          case MessageTypes.image:
+            notificationBody = '📷 Photo';
+            break;
+          default:
+            notificationBody = "New Message";
+        }
+        await NotificationHelper.showNotification(
+          title: existingChat?.senderName ?? 'New Message',
+          body: notificationBody,
+          payload: 'chat/$id',
+        );
+
       }
     } catch (e) {
       print('Error handling message: $e');

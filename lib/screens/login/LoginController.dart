@@ -10,6 +10,7 @@ import '../../modle/api/ApiServixe.dart';
 class   LoginController extends GetxController {
   late var phoneNumber = ''.obs; // Stores national number without country code
   final password = ''.obs;
+  var countryCode = '+966'.obs; // Default country code
   SharedPreferences? _prefs;
     final isLoading = false.obs;
   final isPasswordVisible = false.obs;
@@ -28,6 +29,7 @@ class   LoginController extends GetxController {
   }
 
 
+  void updateCountryCode(String value) => countryCode.value = value;
 
   void updatePhoneNumber(String value) => phoneNumber.value = value;
 
@@ -39,7 +41,7 @@ class   LoginController extends GetxController {
     if (value == null || value.isEmpty && isLogin.value) {
       return AppLocale.getString(context, AppLocale.enterPhoneNumber);
     }
-    if (!RegExp(r'^5[0-9]{8}$').hasMatch(value) && isLogin.value) {
+    if (!RegExp(r'^\d+$').hasMatch(value) && isLogin.value) { // Only numbers allowed
       return AppLocale.getString(context, AppLocale.invalidPhoneFormat);
     }
     return null;
@@ -69,8 +71,9 @@ class   LoginController extends GetxController {
 
     try {
       isLoading(true);
+// In login_controller.dart
       final response = await _apiService.post('Auth/login', {
-        'PHONENUMBER': phoneNumber.value, // Uppercase key
+        'PHONENUMBER': '${countryCode.value}${phoneNumber.value}',
         'PASSWORD': password.value,
       });
 

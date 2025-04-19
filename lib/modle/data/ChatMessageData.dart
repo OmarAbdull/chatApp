@@ -37,4 +37,21 @@ class ChatMessageData {
       return const AssetImage('assets/default_avatar.png');
     }
   }
+
+  // Add copyWith method
+  ChatMessageData copyWith({
+    int? id,
+    String? senderName,
+    String? userKey,
+    String? avatarBase64,
+    List<MessageData>? messages,
+  }) {
+    return ChatMessageData(
+      id: id ?? this.id,
+      senderName: senderName ?? this.senderName,
+      userKey: userKey ?? this.userKey,
+      avatarBase64: avatarBase64 ?? this.avatarBase64,
+      messages: messages ?? this.messages,
+    );
+  }
 }
