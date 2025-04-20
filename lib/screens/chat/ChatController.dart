@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -20,19 +21,30 @@ class ChatController extends GetxController {
   int? currentChatId;
   SharedPreferences? _prefs;
   final ApiService _apiService = ApiService();
+  StreamSubscription<int>? _chatSubscription;
+  bool _isDisposed = false;
 
   @override
   void onInit() {
     disableScreenshot();
-    _database.chatUpdates.listen((chatId) {
-      if (currentChatId == chatId) {
+    _chatSubscription = _database.chatUpdates.listen((chatId) {
+      if (currentChatId == chatId && !_isDisposed) {
         loadMessages(chatId);
       }
     });
     _initializeSharedPreferences();
     super.onInit();
   }
-
+  @override
+  void onClose() {
+    // Cancel the subscription
+    _chatSubscription?.cancel();
+    // Mark controller as disposed
+    _isDisposed = true;
+    // Re-enable screenshots if needed
+    noScreenshot.screenshotOn();
+    super.onClose();
+  }
   void setCurrentChatId(int chatId) {
     currentChatId = chatId;
   }
@@ -46,7 +58,6 @@ class ChatController extends GetxController {
     print("image :${MessageTypes.image}");
     final userKey = _prefs?.getString("user_key");
     if (message is types.TextMessage) {
-
       final encryptedText = encryptMessage(message.text, userKey!);
 
       final requestBody = {
@@ -60,7 +71,6 @@ class ChatController extends GetxController {
       // Save text message to database
 
       try {
-
         final messageData = MessageData(
           chatId: currentChatId!,
           content: message.text,
@@ -73,13 +83,13 @@ class ChatController extends GetxController {
         loadMessages(currentChatId!);
 
         await _apiService.authenticatedPost('Chat/SendMessage', requestBody);
-
       } catch (e) {
         print('Error sending text message: $e');
       }
     }
     update();
   }
+
   void sendImageMessage(String imagePath) async {
     final userKey = _prefs?.getString("user_key");
 
@@ -119,24 +129,22 @@ class ChatController extends GetxController {
       };
 
       await _apiService.authenticatedPost('Chat/SendMessage', requestBody);
-
     } catch (e) {
       print('Error sending image message: $e');
     }
-
   }
 
   ///Get Message
   void loadMessages(int id) async {
+    if (_isDisposed) return;
     try {
-       await _database.markMessagesAsRead(id);
+      await _database.markMessagesAsRead(id);
       print("id__ $id");
       ChatMessageData? chat = await _database.getChatById(id);
       print("sender ${chat?.senderName}");
       sender.value = chat?.senderName ?? "Unknown";
-       print("sender $sender}");
-
-       chat?.messages.forEach((message) {
+      print("sender $sender}");
+      chat?.messages.forEach((message) {
         print("Chat Id : ${message.id} Chat Message : ${message.content}");
       });
 
@@ -175,8 +183,10 @@ class ChatController extends GetxController {
         update(); // Notify UI to rebuild
       }
     } catch (e) {
-      print('Error loading messages: $e');
-      messages.assignAll([]); // Fallback to empty list
+      if (!_isDisposed) { // Only update if not disposed
+        print('Error loading messages: $e');
+        messages.assignAll([]);
+      }
     }
   }
 

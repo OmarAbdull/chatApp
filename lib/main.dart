@@ -11,6 +11,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationHelper.initialize();
   await FlutterLocalization.instance.ensureInitialized();
+  final appDatabase = AppDatabase();
+  appDatabase.insertOrUpdateChat(id: 0, senderName: "senderName", userKey: "userKey", avatarBase64: "avatarBase64");
+  appDatabase.deleteChat(0);
   Get.put(AppDatabase());
   Get.put(MyAppController());
   runApp(const MyApp());

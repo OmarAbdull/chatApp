@@ -36,7 +36,7 @@ class ChatListScreen extends StatelessWidget {
         }
         return ListView.separated(
           itemCount: _chatController.chatList.length,
-          separatorBuilder: (context, index) => const Divider(height: 1),
+          separatorBuilder: (context, index) => const Divider(height: 1,color: Colors.grey,),
           itemBuilder: (context, index) {
             final chat = _chatController.chatList[index];
             final lastMessage = chat.messages.lastOrNull;
@@ -44,6 +44,7 @@ class ChatListScreen extends StatelessWidget {
 
             return ListTile(
               leading: CircleAvatar(
+                backgroundColor: Colors.grey,
                 radius: 25,
                 backgroundImage: chat.avatarImage,
               ),

@@ -69,7 +69,7 @@ class WebSocketService {
             'target': parsed['target'],
             'arguments': parsed['arguments'],
           };
-
+            print("Sanitized $sanitized");
           _messageController.add(sanitized);
         }
       }

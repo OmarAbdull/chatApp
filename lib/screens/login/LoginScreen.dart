@@ -38,7 +38,9 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       CountryPickerDropdown(
                         initialValue: 'SA',
-                        itemBuilder: _buildDropdownItem,
+                        itemBuilder: (country) =>
+                            _buildDropdownItem(context, country),
+                        // Pass context here
                         onValuePicked: (Country country) {
                           _controller.updateCountryCode(country.phoneCode);
                         },
@@ -89,7 +91,8 @@ class LoginScreen extends StatelessWidget {
                                       Theme.of(context).colorScheme.primary,
                                   fixedSize: Size(200, 40)),
                               onPressed: () {
-                                if (_formKey.currentState?.validate() ?? false) {
+                                if (_formKey.currentState?.validate() ??
+                                    false) {
                                   _controller.login(context);
                                 }
                               },
@@ -113,11 +116,16 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdownItem(Country country) => Row(
+  Widget _buildDropdownItem(BuildContext context, Country country) => Row(
         children: <Widget>[
           CountryPickerUtils.getDefaultFlagImage(country),
           const SizedBox(width: 8),
-          Text("+${country.phoneCode}"),
+          Text(
+            "+${country.phoneCode}",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
         ],
       );
 }

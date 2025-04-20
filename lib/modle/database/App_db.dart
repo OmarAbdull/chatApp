@@ -40,7 +40,33 @@ class AppDatabase {
       onUpgrade: _onUpgrade,
     );
   }
+  Future<bool> deleteChat(int chatId) async {
+    final db = await database;
+    try {
+      await db.transaction((txn) async {
+        // Delete all messages first
+        await txn.delete(
+          ChatMessage.tableName,
+          where: '${ChatMessage.columnChatId} = ?',
+          whereArgs: [chatId],
+        );
 
+        // Then delete the chat
+        await txn.delete(
+          Chat.tableName,
+          where: '${Chat.columnId} = ?',
+          whereArgs: [chatId],
+        );
+      });
+
+      // Notify listeners about the deleted chat
+      _chatUpdateController.add(chatId);
+      return true;
+    } catch (e) {
+      print('Error deleting chat $chatId: $e');
+      return false;
+    }
+  }
   Future<bool> chatExists(int chatId) async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery(
@@ -235,7 +261,7 @@ class AppDatabase {
   }
 
   Future<int> markMessagesAsRead(int chatId) async {
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    print("))))))))))))))))((((((((((((((");
     final db = await database;
     return await db.update(
       ChatMessage.tableName,

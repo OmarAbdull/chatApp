@@ -31,9 +31,9 @@ class BottomNavBar extends StatelessWidget {
           height: 60,
           animationDuration: Duration(milliseconds: 300),
           items:  [
-            Icon(Icons.chat, size: 30, color:Theme.of(context).colorScheme.surface),
-            Icon(Icons.lightbulb, size: 30,  color:Theme.of(context).colorScheme.surface),
-            Icon(Icons.person, size: 30,  color:Theme.of(context).colorScheme.surface),
+            Icon(Icons.chat, size: 30, color:Colors.white),
+            Icon(Icons.lightbulb, size: 30,  color:Colors.white),
+            Icon(Icons.person, size: 30,  color:Colors.white),
           ],
           onTap: (index) => controller.changeIndex(index),
         ),
