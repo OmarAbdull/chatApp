@@ -188,8 +188,6 @@ class BottomNavController extends GetxController {
 
   @override
   void onClose() {
-    _messageSubscription.cancel();
-    webSocketService.disconnect();
     super.onClose();
   }
 
